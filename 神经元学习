@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定义传递函数
+def tanh(x):
+    return np.tanh(x)
+
+def sgn(x):
+    return 1 if x >= 0 else -1
+
+# Hebbian 学习算法 (使用 tanh 函数)
+def hebbian(w, x, eta):
+    x1 = np.array([1, x[0], x[1]]) 
+    net = np.dot(w, x1)
+    o = tanh(net)  
+    w += eta * o * x1
+    return w
+
+# Perceptron 算法 (使用符号函数)
+def perceptron(w, x, d, eta):
+    x1 = np.array([1, x[0], x[1]])  
+    net = np.dot(w, x1)
+    o = sgn(net)  
+    w += eta * (d - o) * x1
+    return w
+
+# Delta 规则算法 (使用 tanh 函数)
+def delta(w, x, d, eta):
+    x1 = np.array([1, x[0], x[1]])  
+    net = np.dot(w, x1)
+    o = tanh(net)  
+    delta_o = 1 - o**2  
+    w += eta * (d - o) * delta_o * x1
+    return w
+
+# Widrow-Hoff (LMS) 算法 (使用 tanh 函数)
+def widrow_hoff(w, x, d, eta):
+    x1 = np.array([1, x[0], x[1]])  
+    net = np.dot(w, x1)
+    o = tanh(net) 
+    w += eta * (d - o) * x1
+    return w
+
+# Correlation 算法 (使用 tanh 函数)
+def correlation(w, x, d, eta):
+    x1 = np.array([1, x[0], x[1]]) 
+    o = tanh(np.dot(w, x1))  
+    w += eta * o * x1
+    return w
+
+# 定义样本数据
+xdim = [(-0.1, -0.2), (0.5, 0.5), (-0.5, 0.2), (-0.2, 0.5), (0.2, 0.1), (0.0, 0.8)]
+ldim = [-1, 1, -1, -1, 1, 1]
+eta = 0.5  # 学习速率
+
+# 初始化权重
+w = np.array([0.0, 0.0, 0.0])  # [b, w1, w2]
+
+# 训练过程Perceptron
+for epoch in range(2):  # 两轮训练
+    print(f"第 {epoch+1} 轮训练:")
+    for x, d in zip(xdim, ldim):
+        w = perceptron(w, x, d, eta)  # 替换为不同算法 hebbian, delta, widrow_hoff
+        print(f"当前权值更新: {w}")
+
+# 输出最终权重
+print(f"训练结束后权重: {w}")
+
+# 可视化样本点和分类
+for x, l in zip(xdim, ldim):
+    if l > 0:
+        plt.scatter(x[0], x[1], color='blue', marker='o', s=100)
+    else:
+        plt.scatter(x[0], x[1], color='red', marker='+', s=100)
+plt.xlabel("X1")
+plt.ylabel("X2")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
