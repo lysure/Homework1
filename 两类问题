@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 感知机传递函数 (符号函数)
+def sgn(x):
+    return 1 if x >= 0 else -1
+
+# 感知机学习算法
+def perceptron(w, x, d, eta):
+    x1 = np.array([1, x[0], x[1]])  # 包含偏置项
+    net = np.dot(w, x1)
+    o = sgn(net)  # 使用符号函数
+    w += eta * (d - o) * x1  # 权值更新规则
+    return w
+
+# 样本数据
+xdim = [(-0.1, -0.2), (0.5, 0.5), (-0.5, 0.2), (-0.2, 0.5), (0.2, 0.1), (0.0, 0.8)]
+ldim = [-1, 1, -1, -1, 1, 1]  # 标签
+eta = 0.5  # 学习速率
+
+# 初始化权重
+w = np.array([0.0, 0.0, 0.0])  # 权重 w1, w2, b
+
+# 训练过程
+for epoch in range(2):  # 两轮训练
+    print(f"第 {epoch+1} 轮训练:")
+    for x, d in zip(xdim, ldim):
+        w = perceptron(w, x, d, eta)
+        print(f"当前权值更新: {w}")
+
+print(f"训练结束后权重: {w}")
+
+# 输出线性分类边界 f(x1, x2) = w1*x1 + w2*x2 + b
+print(f"线性分类边界: f(x1, x2) = {w[1]:.3f} * x1 + {w[2]:.3f} * x2 + {w[0]:.3f}")
+
+# 可视化
+x_values = np.linspace(-0.5, 0.7, 100)
+y_values = -(w[1] * x_values + w[0]) / w[2]
+
+plt.plot(x_values, y_values, label="分类边界")
+for x, l in zip(xdim, ldim):
+    if l > 0:
+        plt.scatter(x[0], x[1], color='blue', marker='o', s=100)
+    else:
+        plt.scatter(x[0], x[1], color='red', marker='+', s=100)
+plt.xlabel("X1")
+plt.ylabel("X2")
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
