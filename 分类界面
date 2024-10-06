@@ -1,0 +1,19 @@
+import matplotlib.pyplot as plt
+
+# 绘制样本点
+for i in range(len(X)):
+    if y[i] == 1:
+        plt.scatter(X[i][1], X[i][2], color='blue', marker='o')
+    else:
+        plt.scatter(X[i][1], X[i][2], color='red', marker='+')
+
+# 绘制分类线
+x_vals = np.linspace(-0.6, 0.6, 100)
+y_vals = -(w[1] * x_vals + w[0]) / w[2]
+plt.plot(x_vals, y_vals, color='green')
+
+plt.xlabel('X1')
+plt.ylabel('X2')
+plt.title('ADALINE Classification Boundary')
+plt.grid()
+plt.show()
