@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 字母数据 (7×9 点阵图转换成63维向量)
+A = np.array([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+B = np.array([1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+C = np.array([0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+D = np.array([1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+E = np.array([1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+F = np.array([1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+G = np.array([0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+# 输入字母数据及其标签
+letters = np.array([A, B, C, D, E, F, G])
+labels = np.eye(7)  # 每个字母对应的独热编码标签
+
+# 感知机网络类定义
+class Perceptron:
+    def __init__(self, input_size, num_classes, learning_rate=0.1):
+        self.weights = np.zeros((num_classes, input_size))
+        self.bias = np.zeros(num_classes)
+        self.lr = learning_rate
+    
+    def activation(self, x):
+        return np.where(x > 0, 1, 0)  # 阶跃函数
+
+    def predict(self, x):
+        output = np.dot(self.weights, x) + self.bias
+        return self.activation(output)
+
+    def train(self, X, y, epochs=10):
+        for epoch in range(epochs):
+            for xi, yi in zip(X, y):
+                output = self.predict(xi)
+                self.weights += self.lr * np.outer((yi - output), xi)
+                self.bias += self.lr * (yi - output)
+
+# 初始化感知机网络
+perceptron = Perceptron(input_size=63, num_classes=7, learning_rate=0.1)
+
+# 训练感知机
+perceptron.train(letters, labels, epochs=10)
+
+# 测试带有噪声点的字母识别效果
+def add_noise(sample, noise_points=1):
+    noisy_sample = sample.copy()
+    for _ in range(noise_points):
+        idx = np.random.randint(0, len(sample))
+        noisy_sample[idx] = -1 if sample[idx] == 1 else 1
+    return noisy_sample
+
+# 测试A字母加噪声后的识别效果
+noisy_A = add_noise(A, noise_points=1)
+predicted_label = perceptron.predict(noisy_A)
+
+print(f"预测结果: {predicted_label}")
